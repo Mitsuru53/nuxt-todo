@@ -38,13 +38,13 @@
 </template>
 
 <script>
+import { mapActions, mapGetters } from 'vuex'
 export default {
   data() {
     return {
       form: {
         input: ''
       },
-      todoList: [],
       rules: {
         input: [
           { required: true, message: '何か入力してください', trigger: 'change' }
@@ -52,24 +52,28 @@ export default {
       }
     }
   },
+  computed: {
+    ...mapGetters({
+      todoList: 'todo/todoList'
+    })
+  },
   methods: {
+    ...mapActions({
+      add: 'todo/handleAdd',
+      check: 'todo/handleCheck',
+      remove: 'todo/handleRemove'
+    }),
     handleAdd() {
-      this.todoList.push({
-        title: this.form.input,
-        isChecked: false
-      })
-      this.$refs.form.resetFields()
+      if (this.form.input) {
+        this.add(this.form.input)
+        this.$refs.form.resetFields()
+      }
     },
     handleCheck(index) {
-      this.todoList = this.todoList.map((todo, i) => {
-        return {
-          ...todo,
-          isChecked: index === i ? !todo.isChecked : todo.isChecked
-        }
-      })
+      this.check(index)
     },
     handleDelete(index) {
-      this.todoList.splice(index, 1)
+      this.remove(index)
     }
   }
 }
@@ -82,26 +86,26 @@ export default {
 
 .list {
   padding: 0;
-}
-
-.todo {
-  height: 60px;
-  list-style: none;
-  display: flex;
-  justify-content: space-between;
-  .title {
-    &.checked {
-      text-decoration: line-through;
+  .todo {
+    height: 60px;
+    list-style: none;
+    display: flex;
+    justify-content: space-between;
+    .title {
+      &.checked {
+        text-decoration: line-through;
+      }
     }
-  }
-}
-
-.icons i {
-  padding-right: 10px;
-  transition: all 0.5s ease-in;
-  &:hover {
-    transform: scale(1.5);
-    color: #2cb696;
+    .icons i {
+      transition: all 0.5s ease-in;
+      &:first-child {
+        margin-right: 10px;
+      }
+      &:hover {
+        transform: scale(1.5);
+        color: #2cb696;
+      }
+    }
   }
 }
 </style>
